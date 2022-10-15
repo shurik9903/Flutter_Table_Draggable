@@ -2,7 +2,10 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_table/widgets/MCell.dart';
+import 'package:flutter_table/widgets/MTable.dart';
+import 'package:provider/provider.dart';
 
 class MRow extends StatefulWidget {
   final List<Widget> children;
@@ -22,7 +25,23 @@ class MRow extends StatefulWidget {
 }
 
 class _MRowState extends State<MRow> {
-  late Widget body;
+  Widget body = Container();
+
+  // @override
+  // void initState() {
+  //   super.initState();
+
+  //   WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+  //     body = Container(
+  //       child: Row(
+  //         mainAxisSize: MainAxisSize.min,
+  //         children: [
+  //           ...context.watch<TableData>().allChildData,
+  //         ],
+  //       ),
+  //     );
+  //   });
+  // }
 
   @override
   void initState() {
@@ -42,13 +61,18 @@ class _MRowState extends State<MRow> {
     //   child: Row(
     //     mainAxisSize: MainAxisSize.min,
     //     children: [
-    //       ...widget.children,
+    //       ...context.watch<TableData>().allChildData,
     //     ],
     //   ),
     // );
 
     if (widget.isDraggable)
       return Draggable(
+        onDragCompleted: () {
+          setState(() {
+            body = buildRow(['', '', '']);
+          });
+        },
         data: body,
         feedback: body,
         child: body,
@@ -60,7 +84,8 @@ class _MRowState extends State<MRow> {
           setState(() {
             body = data;
           });
-          log('data: $body');
+          // log('data: ${key: UniqueKey()}');
+          // log(context.watch<TableData>().allChildData.toString());
         },
         builder: (context, data, rejectedData) {
           return body;
@@ -71,11 +96,14 @@ class _MRowState extends State<MRow> {
   }
 }
 
-MRow buildRow(List<String> cells,
-        {bool isHeader = false,
-        bool isDraggable = false,
-        bool isDragTarget = false}) =>
+MRow buildRow(
+  List<String> cells, {
+  bool isHeader = false,
+  bool isDraggable = false,
+  bool isDragTarget = false,
+}) =>
     MRow(
+      key: UniqueKey(),
       isDragTarget: isDragTarget,
       isDraggable: isDraggable,
       children: cells.map((cell) {

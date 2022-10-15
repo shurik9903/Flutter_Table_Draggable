@@ -1,91 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_table/widgets/MRow.dart';
+import 'package:provider/provider.dart';
 
-// class MYTable extends StatefulWidget {
-//   const MYTable({super.key, this.tableRow});
+class TableData extends ChangeNotifier {
+  List<Widget> _data = <Widget>[];
 
-//   final List<TableRow>? tableRow;
+  set childData(List<Widget> data) {
+    _data = data;
+    notifyListeners();
+  }
 
-//   @override
-//   State<MYTable> createState() => _MYTableState();
-// }
+  List<Widget> get allChildData => [..._data];
 
-// class _MYTableState extends State<MYTable> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Table(
-//       border: TableBorder.all(),
-//       defaultColumnWidth: FixedColumnWidth(200),
-//       children: [
-//         ...?widget.tableRow,
-//       ],
-//     );
-//   }
-// }
+  void addData(Widget data) {
+    _data.add(data);
+    notifyListeners();
+  }
 
-// TableRow buildRow(List<String> cells, {bool isHeader = false}) =>
-//     TableRow(children: [
-//       MyRow(
-//         cells: [...cells],
-//       )
-//     ]
-//         // children: cells.map((cell) {
-//         //   final styleText = TextStyle(
-//         //     fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
-//         //     fontSize: 18,
-//         //   );
+  void removeData(Key key) {
+    _data.removeWhere((element) => element.key == key);
+    notifyListeners();
+  }
 
-//         //   // return Draggable(
-//         //   //     child: Container(
-//         //   //       color: Colors.white,
-//         //   //       child: Text('q'),
-//         //   //     ),
-//         //   //     feedback: Container(
-//         //   //       color: Colors.black,
-//         //   //       child: Text('q'),
-//         //   //     ));
+  Widget getData(Key key) {
+    return _data.firstWhere((element) => element.key == key);
+  }
 
-//         //   return Container(
-//         //     color: isHeader
-//         //         ? Color.fromARGB(255, 126, 126, 126)
-//         //         : Color.fromARGB(255, 75, 75, 75),
-//         //     child: Padding(
-//         //       padding: const EdgeInsets.all(5),
-//         //       child: Center(
-//         //         child: Text(
-//         //           cell,
-//         //           style: styleText,
-//         //         ),
-//         //       ),
-//         //     ),
-//         //   );
-//         // }).toList(),
-//         );
-
-// class MyRow extends StatefulWidget {
-//   final List<String>? cells;
-//   const MyRow({super.key, this.cells});
-
-//   @override
-//   State<MyRow> createState() => _MyRowState();
-// }
-
-// class _MyRowState extends State<MyRow> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Draggable<Widget>(
-
-//       feedback: Row(
-//         children: [Text('123')],
-//       ),
-//       child: Row(
-//         children: widget.cells!.map<Widget>((cell) {
-//           return Text('qwe');
-//         }).toList(),
-//       ),
-//     );
-//   }
-// }
+  void changeData(Widget data, Key key) {
+    _data.forEach((element) {
+      if (element.key == key) {
+        element = data;
+        return;
+      }
+    });
+    notifyListeners();
+  }
+}
 
 class MTable extends StatefulWidget {
   final List<Widget> children;
@@ -97,16 +47,31 @@ class MTable extends StatefulWidget {
 }
 
 class _MTableState extends State<MTable> {
+  TableData tableData = TableData();
+
+  // @override
+  // void initState() {
+  //   super.initState();
+
+  //   WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+  //     tableData.childData = [...widget.children];
+  //   });
+  // }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.black,
-      width: 500,
-      child: Center(
-        child: Column(
-          children: [
-            ...widget.children,
-          ],
+    return ChangeNotifierProvider<TableData>(
+      create: (context) => TableData(),
+      child: Container(
+        color: Colors.black,
+        width: 500,
+        child: Center(
+          child: Column(
+            children: [
+              ...widget.children
+              // ...context.watch<TableData>().allChildData,
+            ],
+          ),
         ),
       ),
     );
