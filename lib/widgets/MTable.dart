@@ -10,29 +10,31 @@ class TableData extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<Widget> get allChildData => [..._data];
+  List<Widget> get getAllChild => _data;
 
   void addData(Widget data) {
     _data.add(data);
     notifyListeners();
   }
 
-  void removeData(Key key) {
+  void removeData(Key? key) {
     _data.removeWhere((element) => element.key == key);
     notifyListeners();
   }
 
-  Widget getData(Key key) {
+  Widget getData(Key? key) {
     return _data.firstWhere((element) => element.key == key);
   }
 
-  void changeData(Widget data, Key key) {
-    _data.forEach((element) {
-      if (element.key == key) {
-        element = data;
-        return;
+  void changeData(Widget data, Key? key) {
+    _data = _data.map((e) {
+      if (e.key == key) {
+        return data;
+      } else {
+        return e;
       }
-    });
+    }).toList();
+
     notifyListeners();
   }
 }
@@ -49,31 +51,43 @@ class MTable extends StatefulWidget {
 class _MTableState extends State<MTable> {
   TableData tableData = TableData();
 
-  // @override
-  // void initState() {
-  //   super.initState();
-
-  //   WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-  //     tableData.childData = [...widget.children];
-  //   });
-  // }
+  @override
+  void initState() {
+    tableData.childData = [...widget.children];
+  }
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<TableData>(
-      create: (context) => TableData(),
-      child: Container(
-        color: Colors.black,
-        width: 500,
-        child: Center(
-          child: Column(
-            children: [
-              ...widget.children
-              // ...context.watch<TableData>().allChildData,
-            ],
+      create: (context) => tableData,
+      builder: (context, child) {
+        return Container(
+          color: Colors.black,
+          width: 500,
+          child: Center(
+            child: Column(
+              children: [
+                // ...tableData.getAllChild,
+
+                ...context.watch<TableData>().getAllChild,
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
+      // child: Container(
+      //   color: Colors.black,
+      //   width: 500,
+      //   child: Center(
+      //     child: Column(
+      //       children: [
+      //         ...tableData.getAllChild,
+
+      //         // ...context.watch<TableData>().getAllChild,
+      //       ],
+      //     ),
+      //   ),
+      // ),
     );
   }
 }

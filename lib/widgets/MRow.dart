@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_table/widgets/MCell.dart';
+import 'package:flutter_table/widgets/MDialog.dart';
 import 'package:flutter_table/widgets/MTable.dart';
 import 'package:provider/provider.dart';
 
@@ -65,34 +66,55 @@ class _MRowState extends State<MRow> {
     //     ],
     //   ),
     // );
+    final TableData tableData = context.watch<TableData>();
+    // log('data: ${tableData.getAllChild.toString()}');
 
-    if (widget.isDraggable)
+    if (widget.isDraggable) {
       return Draggable(
         onDragCompleted: () {
-          setState(() {
-            body = buildRow(['', '', '']);
-          });
+          // body = Container(
+          //   child: Row(
+          //     mainAxisSize: MainAxisSize.min,
+          //     children: [],
+          //   ),
+          // );
+          context.read<TableData>().removeData(widget.key);
+          // log('key: ${widget.key}');
         },
         data: body,
         feedback: body,
         child: body,
         childWhenDragging: buildRow(['', '', '']),
       );
-    else if (widget.isDragTarget)
+    } else if (widget.isDragTarget) {
       return DragTarget(
+        onWillAccept: (data) {
+          // showDialogWindow(context).then((value) {
+          //   log('data widget: ${value as bool}');
+          //   return true;
+          // });
+
+          return true;
+        },
         onAccept: (Widget data) {
-          setState(() {
-            body = data;
-          });
-          // log('data: ${key: UniqueKey()}');
+          log('data widget: ${widget.key}');
+          context.read<TableData>().changeData(data, widget.key);
+          context
+              .read<TableData>()
+              .addData(buildRow(['', '', ''], isDragTarget: true));
+          // setState(() {
+          //   body = data;
+          // });
+          // log('data widget: ${widget.key}');
           // log(context.watch<TableData>().allChildData.toString());
         },
         builder: (context, data, rejectedData) {
           return body;
         },
       );
-    else
+    } else {
       return body;
+    }
   }
 }
 
